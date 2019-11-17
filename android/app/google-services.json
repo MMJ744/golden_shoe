@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "365930182765",
+    "firebase_url": "https://goldenshoemj.firebaseio.com",
+    "project_id": "goldenshoemj",
+    "storage_bucket": "goldenshoemj.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365930182765:android:80c967ff6c85b7c61c2764",
+        "android_client_info": {
+          "package_name": "com.mj.golden_shoe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "365930182765-in0kihgas595fbc4b5799ap0j0bnedgi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9RiZOzq3doZrshM0vq3xumY3VTdCcUwQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "365930182765-in0kihgas595fbc4b5799ap0j0bnedgi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
