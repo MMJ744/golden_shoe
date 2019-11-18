@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:golden_shoe/Checkout.dart';
+import 'package:golden_shoe/men.dart';
 import 'package:golden_shoe/product.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'dart:io' show Platform;
 
 void main() => runApp(MyApp());
 
@@ -23,14 +28,43 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Golden Shoe'),
+      home: MyHomePage(new List<int>()),
 
     );
   }
 }
 
+class ChatBot extends StatelessWidget {
+  final Completer<WebViewController> _controller =
+  Completer<WebViewController>();
+  @override
+  Widget build(BuildContext context) {
+    print("start");
+    try{
+      if (Platform.isAndroid || Platform.isIOS) {
+        print("****** ANDROID*******");
+        // TODO: implement build
+        return Scaffold(
+          body: WebView(
+            initialUrl: "https://mmj744.github.io/chatbothost/",
+            javascriptMode: JavascriptMode.unrestricted,
+            onWebViewCreated: (WebViewController webViewController) {
+              _controller.complete(webViewController);
+            },
+          ),
+        );}
+    } catch (e){
+      //ht.window.open('https://mmj744.github.io/chatbothost/', 'chatbot');
+      return Scaffold(
+
+      );
+    }
+
+  }
+
+}
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -40,13 +74,22 @@ class MyHomePage extends StatefulWidget {
   // case the title) provided by the parent (in this case the App widget) and
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
-
-  final String title;
+  List<int> cart = new List();
+  MyHomePage(this.cart);
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MyHomePageState createState() => _MyHomePageState(cart);
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  void _addToCart(int id) {
+    setState(() {
+      cart.add(id);
+    });
+  }
+
+  List<int> cart = new List();
+  _MyHomePageState(this.cart);
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -55,10 +98,10 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    final List<Image> shoes = [Image(image: AssetImage('images/shoe.png')),Image(image: AssetImage('images/shoe2.png')),
-      Image(image: AssetImage('images/shoe3.png')),Image(image: AssetImage('images/shoe4.png')),
-      Image(image: AssetImage('images/shoe5.png')),Image(image: AssetImage('images/shoe6.png')),
-      Image(image: AssetImage('images/shoe7.png'))];
+    final List<Image> shoes = [Image(image: AssetImage('images/0.jpg')),Image(image: AssetImage('images/1.jpg')),
+      Image(image: AssetImage('images/2.jpg')),Image(image: AssetImage('images/3.jpg')),
+      Image(image: AssetImage('images/4.jpg')),Image(image: AssetImage('images/5.jpg')),
+      Image(image: AssetImage('images/6.jpg'))];
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -66,14 +109,20 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children:<Widget>[
-              Text(widget.title),
+              Text('Golden Shoe'),
             ]
         ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.shopping_cart),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => checkout()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Checkout(cart)));
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.account_circle),
+            onPressed: (){
+
             },
           )
         ],
@@ -85,16 +134,26 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: Text("Home"),
               trailing: Icon(Icons.arrow_forward),
+              onTap: () {Navigator.of(context).pop();},
             ),
             ListTile(
               title: Text("Mens"),
               trailing: Icon(Icons.arrow_forward),
+              onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Men(cart)));},
             ),
             ListTile(
               title: Text("Cart"),
               leading: Icon(Icons.shopping_cart),
               trailing: Icon(Icons.arrow_forward),
+              onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Checkout(cart)));},
             ),
+            ListTile(
+              title: Text("Customer Support"),
+              leading: Icon(Icons.chat),
+                trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ChatBot()));},
+            )
           ],
         ),
       ),
@@ -106,16 +165,17 @@ class _MyHomePageState extends State<MyHomePage> {
             color: Colors.red,
           ),
           Container(
-            height: 300,
+            height: 255,
             child: ListView.builder(
+
               scrollDirection: Axis.horizontal,
               itemCount: shoes.length,itemBuilder:  (context, index){
               return GestureDetector(
                 onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => product(product_id: index)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => Product(product_id: index, cart: cart,)));
                 },
                 child: Container(
-                  width: 300,
+                  width: 255,
                   child: shoes[index],),
               );
             },
@@ -127,20 +187,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-
-    );
-  }
-}
-
-class CheckoutPage extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _CheckoutPageState();
-}
-
-class _CheckoutPageState extends State<CheckoutPage>{
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
 
     );
   }
