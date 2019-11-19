@@ -1,6 +1,10 @@
+import 'dart:collection';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:golden_shoe/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:golden_shoe/product.dart';
 import 'Checkout.dart';
 
 class Men extends StatefulWidget {
@@ -14,7 +18,8 @@ class Men extends StatefulWidget {
 
 class men extends State<Men> {
   List<int> cart;
-
+  HashMap<int,String> names = new HashMap();
+  HashMap<int,int> prices = new HashMap();
   men(this.cart);
   final List<Image> shoes = [Image(image: AssetImage('images/0.jpg')),Image(image: AssetImage('images/1.jpg')),
     Image(image: AssetImage('images/2.jpg')),Image(image: AssetImage('images/3.jpg')),
@@ -27,31 +32,24 @@ class men extends State<Men> {
     });
   }
 
-  Future<String> getValue(DocumentSnapshot d) async {
-    String s = d['name'];
-    return s;
-  }
   Widget _buildProduct(int id) {
-    String name;
-    int price;
-    try {
-      final db = Firestore.instance;
-      db.collection("products").where('id', isEqualTo: id).snapshots().listen((
-          data) => (){
-        setState(() {
-          name = data.documents[0]['name'];
-          price = data.documents[0]['price'];
-        });
-
-        });
-    } catch (e) { };
-    print('$name' + "  " + '$price');
+    String name = ' ';
+    int price = 999;
+    try{
+      name = names[id];
+      price = prices[id];
+    } catch (e) {
+      print(e.toString());
+    }
       return Container(
         width: 300,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            shoes[id],
+            GestureDetector(
+              onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Product(product_id: id, cart: cart,)));},
+              child: shoes[id],
+            ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -90,6 +88,29 @@ class men extends State<Men> {
   }
   @override
   Widget build(BuildContext context) {
+
+    try{
+      final db = Firestore.instance;
+      db.collection("products").where('id',isGreaterThan:-1).snapshots().listen((data)=>{
+        setState(() {
+          for (var d in data.documents) {
+            names.putIfAbsent(d['id'], () => d['name']);
+            prices.putIfAbsent(d['id'], () => d['price']);
+          }
+        }
+      )});
+
+    }catch (e){
+      print(e.toString());
+      print("FAIL");
+    }
+    Future.delayed(const Duration(milliseconds: 100), () {
+
+      setState(() {
+
+      });
+
+    });
     return new Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -97,7 +118,10 @@ class men extends State<Men> {
         title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children:<Widget>[
-              Text("golden shoe"),
+              GestureDetector(
+                child: Text('Golden Shoe'),
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage(cart)));},
+              )
             ]
         ),
         actions: <Widget>[
@@ -134,6 +158,13 @@ class men extends State<Men> {
               trailing: Icon(Icons.arrow_forward),
               onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Checkout(cart)));},
             ),
+            ListTile(
+              title: Text("Customer Support"),
+              leading: Icon(Icons.chat),
+              trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ChatBot()));},
+            )
           ],
         ),
       ),

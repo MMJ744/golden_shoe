@@ -1,6 +1,8 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:golden_shoe/main.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'men.dart';
 
 class Checkout extends StatefulWidget {
@@ -26,8 +28,41 @@ class checkout extends State<Checkout> {
     Image(image: AssetImage('images/2.jpg')),Image(image: AssetImage('images/3.jpg')),
     Image(image: AssetImage('images/4.jpg')),Image(image: AssetImage('images/5.jpg')),
     Image(image: AssetImage('images/6.jpg'))];
+  HashMap<int,String> names = new HashMap();
+  HashMap<int,int> prices = new HashMap();
+
+  int cartTotal(){
+    int total = 0;
+    for(int i in cart){
+      total+=prices[i];
+    }
+    return total;
+  }
+
   @override
   Widget build(BuildContext context) {
+    try{
+      final db = Firestore.instance;
+      db.collection("products").where('id',isGreaterThanOrEqualTo: 0).snapshots().listen((data)=>{
+        setState(() {
+          for (var d in data.documents) {
+            names.putIfAbsent(d['id'], () => d['name']);
+            prices.putIfAbsent(d['id'], () => d['price']);
+          }
+        }
+        )});
+
+    }catch (e){
+      print(e.toString());
+      print("FAIL");
+    }
+    Future.delayed(const Duration(milliseconds: 100), () {
+
+      setState(() {
+
+      });
+
+    });
     return new Scaffold(
         appBar: AppBar(
           // Here we take the value from the MyHomePage object that was created by
@@ -35,7 +70,10 @@ class checkout extends State<Checkout> {
           title: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children:<Widget>[
-                Text("golden shoe"),
+                GestureDetector(
+                  child: Text('Golden Shoe'),
+                  onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage(cart)));},
+                )
               ]
           ),
           actions: <Widget>[
@@ -73,6 +111,13 @@ class checkout extends State<Checkout> {
                 leading: Icon(Icons.shopping_cart),
                 trailing: Icon(Icons.arrow_forward),
               ),
+              ListTile(
+                title: Text("Customer Support"),
+                leading: Icon(Icons.chat),
+                trailing: Icon(Icons.arrow_forward),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ChatBot()));},
+              )
             ],
           ),
         ),
@@ -80,18 +125,58 @@ class checkout extends State<Checkout> {
         children: <Widget>[
           Container(
             height: 200,
+            width: MediaQuery.of(context).size.width,
+            alignment: Alignment.center,
+            child: Text("Checkout banner",style: TextStyle(fontSize: 40),),
             color: Colors.green,
           ),
           Container(
             height: 500,
+            alignment: Alignment.center,
             child: ListView.builder(itemCount: cart.length, itemBuilder: (context, index){
+              String name = "";
+              int price = 999;
+              try{
+                name = names[cart[index]];
+                price = prices[cart[index]];
+              } catch (e) {}
               return Container(
-                width: 255,
-                child: shoes[index],
+                padding: EdgeInsets.symmetric(horizontal: 25,vertical: 5),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Container(
+                        width: 250,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text('$name', style: TextStyle(fontSize: 18,
+                                fontWeight: FontWeight.normal,
+                                color: Colors.blue),),
+                            Text('£$price', style: TextStyle(fontSize: 20,
+                                fontWeight: FontWeight.w100,
+                                color: Colors.blueGrey),),
+                          ],
+                        ),
+                      ),
+                      IconButton(icon: Icon(Icons.highlight_off),onPressed: (){
+                        cart.removeAt(index);
+                      },)
+                    ]
+                ),
               );
             }),
 
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text('Total : ' + cartTotal().toString() + '     ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+              RaisedButton(child: Text("Checkout"),)
+            ],
           )
+
         ],
       )
     );

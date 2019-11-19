@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:golden_shoe/Checkout.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:golden_shoe/main.dart';
-
+import 'dart:io';
 import 'men.dart';
 //import 'package:firebase/firebase.dart';
 //import 'package:firebase/firestore.dart' as fs;
@@ -35,6 +35,7 @@ class productState extends State<Product> {
     Image(image: AssetImage('images/6.jpg'))];
   @override
   Widget build(BuildContext context) {
+
     try{
       final db = Firestore.instance;
       db.collection("products").where('id',isEqualTo:product_id).snapshots().listen((data)=> {
@@ -64,7 +65,6 @@ class productState extends State<Product> {
       });*/
     }
 
-
     var description = Container(child: Text(
       "$desc",
       textAlign: TextAlign.justify,
@@ -73,7 +73,7 @@ class productState extends State<Product> {
         padding: EdgeInsets.all(13)
     );
     var nameItem = Container(child: Text(
-      " $name",
+      "$name",
       textAlign: TextAlign.center,
       style: TextStyle(height: 1.5, color: Colors.blue,fontSize: 30, fontWeight: FontWeight.bold),
     ),);
@@ -85,7 +85,10 @@ class productState extends State<Product> {
         title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children:<Widget>[
-              Text("golden shoe"),
+              GestureDetector(
+                child: Text('Golden Shoe'),
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage(cart)));},
+              )
             ]
         ),
         actions: <Widget>[
@@ -123,6 +126,13 @@ class productState extends State<Product> {
               trailing: Icon(Icons.arrow_forward),
               onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Checkout(cart)));},
             ),
+            ListTile(
+              title: Text("Customer Support"),
+              leading: Icon(Icons.chat),
+              trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ChatBot()));},
+            )
           ],
         ),
       ),

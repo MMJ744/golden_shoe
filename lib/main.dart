@@ -39,7 +39,6 @@ class ChatBot extends StatelessWidget {
   Completer<WebViewController>();
   @override
   Widget build(BuildContext context) {
-    print("start");
     try{
       if (Platform.isAndroid || Platform.isIOS) {
         print("****** ANDROID*******");
@@ -54,12 +53,9 @@ class ChatBot extends StatelessWidget {
           ),
         );}
     } catch (e){
-      //ht.window.open('https://mmj744.github.io/chatbothost/', 'chatbot');
       return Scaffold(
-
       );
     }
-
   }
 
 }
@@ -109,7 +105,10 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children:<Widget>[
-              Text('Golden Shoe'),
+              GestureDetector(
+                child: Text('Golden Shoe'),
+                onTap: () {},
+              )
             ]
         ),
         actions: <Widget>[
@@ -162,12 +161,15 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           Container(
             height: 200,
+            width: MediaQuery.of(context).size.width,
+            alignment: Alignment.center,
             color: Colors.red,
+            child: Text("Golden Shoe banner",style: TextStyle(fontSize: 40),),
           ),
+          Text("Featured Shoes",textAlign: TextAlign.center, style: TextStyle(fontSize: 30,fontStyle: FontStyle.italic,fontWeight: FontWeight.bold, color: Colors.lightBlueAccent),),
           Container(
             height: 255,
             child: ListView.builder(
-
               scrollDirection: Axis.horizontal,
               itemCount: shoes.length,itemBuilder:  (context, index){
               return GestureDetector(
