@@ -125,6 +125,10 @@ class checkout extends State<Checkout> {
                 onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Men(cart)));},
               ),
               ListTile(
+                title: Text("Women"),
+                trailing: Icon(Icons.arrow_forward),
+              ),
+              ListTile(
                 title: Text("Cart"),
                 leading: Icon(Icons.shopping_cart),
                 trailing: Icon(Icons.arrow_forward),

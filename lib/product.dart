@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:golden_shoe/Checkout.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:golden_shoe/main.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'dart:io';
+
 import 'men.dart';
 //import 'package:firebase/firebase.dart';
 //import 'package:firebase/firestore.dart' as fs;
@@ -16,7 +18,7 @@ class Product extends StatefulWidget {
   State<StatefulWidget> createState() => productState(product_id, cart);
 
 }
-class productState extends State<Product> {
+class productState extends State<Product> with TickerProviderStateMixin{
   final int product_id;
   List<int> cart = new List();
   String name = "";
@@ -24,10 +26,53 @@ class productState extends State<Product> {
   int stock = 0;
   String desc = "placeholder \n more stuff \n and more";
   productState(this.product_id, this.cart);
+
   void _addToCart(int id) {
-    setState(() {
-      cart.add(id);
-    });
+    if(stock >0){
+      setState(() {
+        cart.add(id);
+        Alert(
+          context: context,
+          type: AlertType.none,
+          title: "Added to cart",
+          buttons: [
+            DialogButton(
+              child: Text(
+                "Continue Shopping", textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () => Navigator.pop(context),
+              width: 120,
+              height: 50,
+            ),
+            DialogButton(
+                height: 50,
+                width: 120,
+              child: Text(
+                "Go to checkout",textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 20)
+              ), onPressed: () => {Navigator.pop(context),Navigator.push(context, MaterialPageRoute(builder: (context) => Checkout(cart)))}
+            )
+          ],
+        ).show();
+      });
+    }else{
+      Alert(
+          context: context,
+          type: AlertType.none,
+          title: "Sorry Item is out of stock",
+          buttons: [
+            DialogButton(
+              child: Text(
+                "Continue Shopping", textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () => Navigator.pop(context),
+              width: 120,
+              height: 50,
+            ),
+          ]
+      ).show();
+    }
   }
   final List<Image> shoes = [Image(image: AssetImage('images/0.jpg')),Image(image: AssetImage('images/1.jpg')),
     Image(image: AssetImage('images/2.jpg')),Image(image: AssetImage('images/3.jpg')),
@@ -119,6 +164,10 @@ class productState extends State<Product> {
               title: Text("Mens"),
               trailing: Icon(Icons.arrow_forward),
               onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Men(cart)));},
+            ),
+            ListTile(
+              title: Text("Women"),
+              trailing: Icon(Icons.arrow_forward),
             ),
             ListTile(
               title: Text("Cart"),

@@ -136,9 +136,13 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: () {Navigator.of(context).pop();},
             ),
             ListTile(
-              title: Text("Mens"),
+              title: Text("Men"),
               trailing: Icon(Icons.arrow_forward),
               onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Men(cart)));},
+            ),
+            ListTile(
+              title: Text("Women"),
+              trailing: Icon(Icons.arrow_forward),
             ),
             ListTile(
               title: Text("Cart"),

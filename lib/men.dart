@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:golden_shoe/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:golden_shoe/product.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'Checkout.dart';
 
 class Men extends StatefulWidget {
@@ -20,6 +21,7 @@ class men extends State<Men> {
   List<int> cart;
   HashMap<int,String> names = new HashMap();
   HashMap<int,int> prices = new HashMap();
+  HashMap<int,int> stocks = new HashMap();
   men(this.cart);
   final List<Image> shoes = [Image(image: AssetImage('images/0.jpg')),Image(image: AssetImage('images/1.jpg')),
     Image(image: AssetImage('images/2.jpg')),Image(image: AssetImage('images/3.jpg')),
@@ -27,17 +29,61 @@ class men extends State<Men> {
     Image(image: AssetImage('images/6.jpg'))];
 
   void _addToCart(int id) {
-    setState(() {
-      cart.add(id);
-    });
+    if(stocks[id] >0){
+      setState(() {
+        cart.add(id);
+        Alert(
+          context: context,
+          type: AlertType.none,
+          title: "Added to cart",
+          buttons: [
+            DialogButton(
+              child: Text(
+                "Continue Shopping", textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () => Navigator.pop(context),
+              width: 120,
+              height: 50,
+            ),
+            DialogButton(
+                height: 50,
+                width: 120,
+                child: Text(
+                    "Go to checkout",textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 20)
+                ), onPressed: () => {Navigator.pop(context),Navigator.push(context, MaterialPageRoute(builder: (context) => Checkout(cart)))}
+            )
+          ],
+        ).show();
+      });
+    }else{
+      Alert(
+        context: context,
+        type: AlertType.none,
+        title: "Sorry Item is out of stock",
+        buttons: [
+          DialogButton(
+            child: Text(
+            "Continue Shopping", textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+              onPressed: () => Navigator.pop(context),
+              width: 120,
+            height: 50,
+          ),
+          ]
+      ).show();
+    }
   }
 
   Widget _buildProduct(int id) {
     String name = ' ';
     int price = 999;
+    int stock = -1;
     try{
       name = names[id];
       price = prices[id];
+      stock = stocks[id];
     } catch (e) {
       print(e.toString());
     }
@@ -96,6 +142,7 @@ class men extends State<Men> {
           for (var d in data.documents) {
             names.putIfAbsent(d['id'], () => d['name']);
             prices.putIfAbsent(d['id'], () => d['price']);
+            stocks.putIfAbsent(d['id'], () => d['stock']);
           }
         }
       )});
@@ -150,6 +197,10 @@ class men extends State<Men> {
             ),
             ListTile(
               title: Text("Mens"),
+              trailing: Icon(Icons.arrow_forward),
+            ),
+            ListTile(
+              title: Text("Women"),
               trailing: Icon(Icons.arrow_forward),
             ),
             ListTile(
