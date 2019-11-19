@@ -31,14 +31,15 @@ class checkout extends State<Checkout> {
   HashMap<int,String> names = new HashMap();
   HashMap<int,int> prices = new HashMap();
 
+  int discount = 0;
   int cartTotal(){
     int total = 0;
     for(int i in cart){
       total+=prices[i];
     }
-    return total;
+    return total-discount;
   }
-
+  TextEditingController codeController = new TextEditingController();
   @override
   Widget build(BuildContext context) {
     try{
@@ -63,6 +64,23 @@ class checkout extends State<Checkout> {
       });
 
     });
+    void _applyCode() {
+      setState(() {
+        try{
+          if(codeController.text.substring(0,1)=='D'){
+            discount += int.parse(codeController.text.substring(1));
+            print("disount is now " + discount.toString());
+          }else {
+            print("invalid code *******************************************");
+          }
+        } catch (e) {
+          print("error in applying code");
+          print(codeController.text);
+          print(e.toString());
+        }
+      });
+    }
+
     return new Scaffold(
         appBar: AppBar(
           // Here we take the value from the MyHomePage object that was created by
@@ -124,14 +142,14 @@ class checkout extends State<Checkout> {
       body: Column(
         children: <Widget>[
           Container(
-            height: 200,
+            height: 100,
             width: MediaQuery.of(context).size.width,
             alignment: Alignment.center,
             child: Text("Checkout banner",style: TextStyle(fontSize: 40),),
             color: Colors.green,
           ),
           Container(
-            height: 500,
+            height: 250,
             alignment: Alignment.center,
             child: ListView.builder(itemCount: cart.length, itemBuilder: (context, index){
               String name = "";
@@ -167,6 +185,37 @@ class checkout extends State<Checkout> {
               );
             }),
 
+          ),
+          Container(
+            height: 200,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                Container(
+                  height: 64,
+                  width: 200,
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: <Widget>[
+                      Text("Apply a voucher code"),
+                      TextField(
+                        controller: codeController,
+                        textAlign: TextAlign.center,
+                      )
+                    ],
+
+                  ),
+                ),
+                Container(
+                  width: 100,
+                  height: 50,
+                child: RaisedButton(
+                  child: Text('Apply'),
+                  onPressed: () {_applyCode();},
+                ),
+                )
+              ],
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
